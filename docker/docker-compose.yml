@@ -1,0 +1,41 @@
+version: '2'
+services:
+
+  # The Application
+  app:
+    container_name: app-container
+    build:
+      context: ./
+      dockerfile: app.dockerfile
+    working_dir: /app
+    volumes:
+      - /Users/vallerion/PhpstormProjects/proghub.docker/:/app
+    environment:
+      - "DB_HOST=database"
+
+  # The Web Server
+  web:
+    build:
+      context: ./
+      dockerfile: web.dockerfile
+    working_dir: /app
+    volumes_from:
+      - app
+    ports:
+      - 8080:80
+
+  # The Database
+  database:
+    image: mysql:5.6
+    volumes:
+      - dbdata:/var/lib/mysql
+    environment:
+      - "MYSQL_DATABASE=dbproject"
+      - "MYSQL_USER=dbuser"
+      - "MYSQL_PASSWORD=secret"
+      - "MYSQL_ROOT_PASSWORD=rootsecret"
+    ports:
+        - "33061:3306"
+
+volumes:
+  dbdata:
