@@ -10,7 +10,10 @@ services:
     working_dir: /app
     volumes:
       - /Users/vallerion/PhpstormProjects/proghub.docker/:/app
+    links:
+      - database
     environment:
+      - "DB_PORT=3306"
       - "DB_HOST=database"
 
   # The Web Server
@@ -19,6 +22,8 @@ services:
       context: ./
       dockerfile: web.dockerfile
     working_dir: /app
+    links:
+      - app
     volumes_from:
       - app
     ports:
@@ -30,12 +35,12 @@ services:
     volumes:
       - dbdata:/var/lib/mysql
     environment:
-      - "MYSQL_DATABASE=dbproject"
-      - "MYSQL_USER=dbuser"
-      - "MYSQL_PASSWORD=secret"
-      - "MYSQL_ROOT_PASSWORD=rootsecret"
+      - MYSQL_DATABASE=dbproject
+      - MYSQL_USER=dbuser
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=rootsecret
     ports:
-        - "33061:3306"
+      - "33061:3306"
 
 volumes:
   dbdata:

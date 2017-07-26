@@ -19,15 +19,19 @@ fi
 cp "$SCRIPT_PATH/.env.dev" "$SCRIPT_PATH/../.env"
 
 cd "$SCRIPT_PATH/docker" && \
-	docker-compose build && \
-	docker-compose up -d
+	docker-compose up -d --build
+
+
+docker exec app-container mkdir -p storage/framework/sessions
+docker exec app-container mkdir -p storage/framework/views
+docker exec app-container mkdir -p storage/framework/cache
+docker exec app-container chmod 777 -R storage/
 
 docker run --rm --interactive --tty \
     --volume "$SCRIPT_PATH/../":/app \
     composer install
 
-docker exec app-container chown www-data:www-data -R storage/
-docker exec app-container chmod 777 -R storage/
-docker exec app-container php artisan config:cache
+docker exec app-container php artisan config:clear
 docker exec app-container php artisan key:generate
-docker exec app-container php artisan migrate --seed
+sleep 2 # "connection refused" without sleep
+docker exec app-container php artisan migrate
